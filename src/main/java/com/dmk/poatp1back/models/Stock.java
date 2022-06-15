@@ -13,8 +13,11 @@ public class Stock {
 
     @ManyToOne
     private Parte parte;
-    private Integer cantidad;
-    private Estado estado;
+    @ManyToOne
+    private Lugar lugar;
+    private Integer cantidadUso;
+    private Integer cantidadDesuso;
+    private Integer cantidadDesechado;
 
     public Stock() {
     }
@@ -35,19 +38,35 @@ public class Stock {
         this.parte = parte;
     }
 
-    public Integer getCantidad() {
-        return cantidad;
+    public Lugar getLugar() {
+        return lugar;
     }
 
-    public void setCantidad(Integer cantidad) {
-        this.cantidad = cantidad;
+    public void setLugar(Lugar lugar) {
+        this.lugar = lugar;
     }
 
-    public Estado getEstado() {
-        return estado;
+    public Integer getCantidadUso() {
+        return cantidadUso;
     }
 
-    public void setEstado(Estado estado) {
-        this.estado = estado;
+    public void setCantidadUso(Integer cantidadUso) {
+        this.cantidadUso = cantidadUso;
+    }
+
+    public Integer getCantidadDesuso() {
+        return cantidadDesuso;
+    }
+
+    public void setCantidadDesuso(Integer cantidadDesuso) {
+        this.cantidadDesuso = cantidadDesuso;
+    }
+
+    public Integer getCantidadDesechado() {
+        return cantidadDesechado;
+    }
+
+    public void setCantidadDesechado(Integer cantidadDesechado) {
+        this.cantidadDesechado = cantidadDesechado;
     }
 }

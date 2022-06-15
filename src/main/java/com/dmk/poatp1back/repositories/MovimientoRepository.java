@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 @Repository
 public interface MovimientoRepository extends CrudRepository<Movimiento, Long> {
-    public abstract ArrayList<Movimiento> findByPrioridad(Integer prioridad);
 
     @Query("select m from Movimiento m where m.fecha between :desde and :hasta")
     public abstract ArrayList<Movimiento> findByFechaBetween(@Param("desde")LocalDateTime desde, @Param("hasta")LocalDateTime hasta, Pageable pageable);

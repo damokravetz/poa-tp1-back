@@ -9,6 +9,5 @@ import java.util.ArrayList;
 
 @Repository
 public interface LugarRepository extends CrudRepository<Lugar, Long> {
-    public abstract ArrayList<Lugar> findByPrioridad(Integer prioridad);
 
 }
