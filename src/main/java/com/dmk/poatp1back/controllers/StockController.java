@@ -39,7 +39,7 @@ public class StockController {
         }
     }
 
-    @GetMapping()
+    @GetMapping("/global")
     public ArrayList<Stock> obtenerStocksGlobal(@RequestParam Map<String,String> allParams){
         Optional<String> pageParam=Optional.ofNullable(allParams.get("page"));
         Optional<String> sizeParam=Optional.ofNullable(allParams.get("size"));
@@ -58,6 +58,48 @@ public class StockController {
         }
     }
 
+    @PostMapping(path = "/ingreso")
+    public Stock ingresarStock(@RequestParam Map<String,String> allParams) {
+        Optional<String> parteIdParam=Optional.ofNullable(allParams.get("parteId"));
+        Optional<String> lugarIdParam=Optional.ofNullable(allParams.get("lugarId"));
+        Optional<String> cantidadParam=Optional.ofNullable(allParams.get("cantidad"));
+        Optional<String> estadoDestinoParam=Optional.ofNullable(allParams.get("estadoDestino"));
+        if(parteIdParam.isPresent()&&lugarIdParam.isPresent()&&cantidadParam.isPresent()&& estadoDestinoParam.isPresent()){
+            try{
+                Long parteId=Long.valueOf(parteIdParam.get());
+                Long lugarId=Long.valueOf(lugarIdParam.get());
+                Integer cantidad=Integer.valueOf(cantidadParam.get());
+                Integer estadoDestino=Integer.valueOf(estadoDestinoParam.get());
+                return stockService.ingresarStock(parteId, lugarId, cantidad, estadoDestino);
+            }catch (NumberFormatException e){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong Parameter Format");
+            }
+        }else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing Parameters");
+        }
+    }
 
+    @PostMapping(path = "/transferencia")
+    public Stock transferirStock(@RequestParam Map<String,String> allParams) {
+        Optional<String> stockIdParam=Optional.ofNullable(allParams.get("stockId"));
+        Optional<String> cantidadParam=Optional.ofNullable(allParams.get("cantidad"));
+        Optional<String> lugarIdParam=Optional.ofNullable(allParams.get("lugarId"));
+        Optional<String> estadoOrigenParam=Optional.ofNullable(allParams.get("estadoOrigen"));
+        Optional<String> estadoDestinoParam=Optional.ofNullable(allParams.get("estadoDestino"));
+        if(stockIdParam.isPresent()&&cantidadParam.isPresent()&&lugarIdParam.isPresent()&&estadoOrigenParam.isPresent()&&estadoDestinoParam.isPresent()){
+            try{
+                Long stockId=Long.valueOf(stockIdParam.get());
+                Integer cantidad=Integer.valueOf(cantidadParam.get());
+                Long lugarId=Long.valueOf(lugarIdParam.get());
+                Integer estadoOrigen=Integer.valueOf(estadoOrigenParam.get());
+                Integer estadoDestino=Integer.valueOf(estadoDestinoParam.get());
+                return stockService.transferirStock(stockId, cantidad, lugarId, estadoOrigen, estadoDestino);
+            }catch (NumberFormatException e){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong Parameter Format");
+            }
+        }else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing Parameters");
+        }
+    }
 
 }

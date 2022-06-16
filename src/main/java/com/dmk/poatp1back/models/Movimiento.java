@@ -18,8 +18,8 @@ public class Movimiento {
     private Lugar origen;
     @ManyToOne
     private Lugar destino;
-    private String estadoInicial;
-    private String estadoFinal;
+    private Estado estadoInicial;
+    private Estado estadoFinal;
     private Integer cantidad;
     private LocalDateTime fecha;
 
@@ -58,19 +58,19 @@ public class Movimiento {
         this.destino = destino;
     }
 
-    public String getEstadoInicial() {
+    public Estado getEstadoInicial() {
         return estadoInicial;
     }
 
-    public void setEstadoInicial(String estadoInicial) {
+    public void setEstadoInicial(Estado estadoInicial) {
         this.estadoInicial = estadoInicial;
     }
 
-    public String getEstadoFinal() {
+    public Estado getEstadoFinal() {
         return estadoFinal;
     }
 
-    public void setEstadoFinal(String estadoFinal) {
+    public void setEstadoFinal(Estado estadoFinal) {
         this.estadoFinal = estadoFinal;
     }
 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StockRepository extends CrudRepository<Stock, Long> {
@@ -17,5 +18,7 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
 
     @Query("select s from Stock s where s.parte.id IN :parteIds")
     public abstract ArrayList<Stock> findByParteIds(@Param("parteIds")List<Long> parteIds);
+
+    public abstract Optional<Stock> findByParteIdAndLugarId(Long parteId, Long lugarId);
 
 }

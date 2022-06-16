@@ -25,7 +25,7 @@ public class MovimientoController {
     @Autowired
     MovimientoService movimientoService;
 
-    @GetMapping()
+    @GetMapping(path = "global")
     public ArrayList<Movimiento> obtenerMovimientos(@RequestParam Map<String,String> allParams) {
         Optional<String> desdeParam=Optional.ofNullable(allParams.get("desde"));
         Optional<String> hastaParam=Optional.ofNullable(allParams.get("hasta"));
@@ -37,8 +37,8 @@ public class MovimientoController {
             Integer page;
             Integer size;
             try{
-                desde=LocalDateTime.parse(desdeParam.get(), DateTimeFormatter.ofPattern("dd/mm/YYYY"));
-                hasta=LocalDateTime.parse(hastaParam.get(), DateTimeFormatter.ofPattern("dd/mm/YYYY"));
+                desde=LocalDateTime.parse(desdeParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+                hasta=LocalDateTime.parse(hastaParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
             }catch (DateTimeParseException e){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Wrong date formats");
             }
@@ -72,8 +72,8 @@ public class MovimientoController {
             Long parteId;
             Long lugarId;
             try{
-                desde=LocalDateTime.parse(desdeParam.get(), DateTimeFormatter.ofPattern("dd/mm/YYYY"));
-                hasta=LocalDateTime.parse(hastaParam.get(), DateTimeFormatter.ofPattern("dd/mm/YYYY"));
+                desde=LocalDateTime.parse(desdeParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+                hasta=LocalDateTime.parse(hastaParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
             }catch (DateTimeParseException e){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Wrong date formats");
             }
@@ -108,8 +108,8 @@ public class MovimientoController {
             Integer size;
             Long parteId;
             try{
-                desde=LocalDateTime.parse(desdeParam.get(), DateTimeFormatter.ofPattern("dd/mm/YYYY"));
-                hasta=LocalDateTime.parse(hastaParam.get(), DateTimeFormatter.ofPattern("dd/mm/YYYY"));
+                desde=LocalDateTime.parse(desdeParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+                hasta=LocalDateTime.parse(hastaParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
             }catch (DateTimeParseException e){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Wrong date formats");
             }
@@ -134,7 +134,7 @@ public class MovimientoController {
         Optional<String> hastaParam=Optional.ofNullable(allParams.get("hasta"));
         Optional<String> pageParam=Optional.ofNullable(allParams.get("page"));
         Optional<String> sizeParam=Optional.ofNullable(allParams.get("size"));
-        Optional<String> lugarIdParam=Optional.ofNullable(allParams.get("parteId"));
+        Optional<String> lugarIdParam=Optional.ofNullable(allParams.get("lugarId"));
 
         if(desdeParam.isPresent()&&hastaParam.isPresent()&&pageParam.isPresent()&&sizeParam.isPresent()&&lugarIdParam.isPresent()){
             LocalDateTime desde;
@@ -143,8 +143,8 @@ public class MovimientoController {
             Integer size;
             Long lugarId;
             try{
-                desde=LocalDateTime.parse(desdeParam.get(), DateTimeFormatter.ofPattern("dd/mm/YYYY"));
-                hasta=LocalDateTime.parse(hastaParam.get(), DateTimeFormatter.ofPattern("dd/mm/YYYY"));
+                desde=LocalDateTime.parse(desdeParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+                hasta=LocalDateTime.parse(hastaParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
             }catch (DateTimeParseException e){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Wrong date formats");
             }

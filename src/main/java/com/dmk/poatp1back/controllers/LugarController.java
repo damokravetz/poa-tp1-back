@@ -15,7 +15,7 @@ public class LugarController {
     @Autowired
     LugarService lugarService;
 
-    @GetMapping("/lugares")
+    @GetMapping()
     public ArrayList<Lugar> obtenerLugares(){
         return lugarService.obtenerLugares();
     }
