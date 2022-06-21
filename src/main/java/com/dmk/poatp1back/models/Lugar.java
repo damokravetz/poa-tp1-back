@@ -12,6 +12,7 @@ public class Lugar {
 
     private String codLugar;
     private String descripcion;
+    private Integer capacidad;
 
     public Lugar() {
     }
@@ -38,5 +39,13 @@ public class Lugar {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public Integer getCapacidad() {
+        return capacidad;
+    }
+
+    public void setCapacidad(Integer capacidad) {
+        this.capacidad = capacidad;
     }
 }

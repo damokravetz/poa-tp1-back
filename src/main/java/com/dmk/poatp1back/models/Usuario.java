@@ -13,17 +13,9 @@ public class Usuario {
 
     private String nombre;
     private String email;
-    private Integer prioridad;
+    private String password;
 
     public Usuario() {
-    }
-
-    public void setPrioridad(Integer prioridad){
-        this.prioridad = prioridad;
-    }
-
-    public Integer getPrioridad(){
-        return prioridad;
     }
 
     public Long getId() {
@@ -50,4 +42,11 @@ public class Usuario {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
