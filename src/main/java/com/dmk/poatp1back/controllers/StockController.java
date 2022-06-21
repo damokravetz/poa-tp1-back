@@ -3,11 +3,11 @@ package com.dmk.poatp1back.controllers;
 import com.dmk.poatp1back.models.Stock;
 import com.dmk.poatp1back.services.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -18,7 +18,7 @@ public class StockController {
     StockService stockService;
 
     @GetMapping( path = "/lugar")
-    public ArrayList<Stock> obtenerStocksPorLugar(@RequestParam Map<String,String> allParams){
+    public PageImpl<Stock> obtenerStocksPorLugar(@RequestParam Map<String,String> allParams){
         Optional<String> pageParam=Optional.ofNullable(allParams.get("page"));
         Optional<String> sizeParam=Optional.ofNullable(allParams.get("size"));
         Optional<String> lugarIdParam=Optional.ofNullable(allParams.get("lugarId"));
@@ -40,7 +40,7 @@ public class StockController {
     }
 
     @GetMapping("/global")
-    public ArrayList<Stock> obtenerStocksGlobal(@RequestParam Map<String,String> allParams){
+    public PageImpl<Stock> obtenerStocksGlobal(@RequestParam Map<String,String> allParams){
         Optional<String> pageParam=Optional.ofNullable(allParams.get("page"));
         Optional<String> sizeParam=Optional.ofNullable(allParams.get("size"));
         if(pageParam.isPresent()&&sizeParam.isPresent()){
@@ -69,8 +69,7 @@ public class StockController {
                 Long parteId=Long.valueOf(parteIdParam.get());
                 Long lugarId=Long.valueOf(lugarIdParam.get());
                 Integer cantidad=Integer.valueOf(cantidadParam.get());
-                Integer estadoDestino=Integer.valueOf(estadoDestinoParam.get());
-                return stockService.ingresarStock(parteId, lugarId, cantidad, estadoDestino);
+                return stockService.ingresarStock(parteId, lugarId, cantidad, estadoDestinoParam.get());
             }catch (NumberFormatException e){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong Parameter Format");
             }
@@ -91,9 +90,7 @@ public class StockController {
                 Long stockId=Long.valueOf(stockIdParam.get());
                 Integer cantidad=Integer.valueOf(cantidadParam.get());
                 Long lugarId=Long.valueOf(lugarIdParam.get());
-                Integer estadoOrigen=Integer.valueOf(estadoOrigenParam.get());
-                Integer estadoDestino=Integer.valueOf(estadoDestinoParam.get());
-                return stockService.transferirStock(stockId, cantidad, lugarId, estadoOrigen, estadoDestino);
+                return stockService.transferirStock(stockId, cantidad, lugarId, estadoOrigenParam.get(), estadoDestinoParam.get());
             }catch (NumberFormatException e){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong Parameter Format");
             }

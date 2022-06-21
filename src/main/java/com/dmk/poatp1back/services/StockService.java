@@ -6,12 +6,9 @@ import com.dmk.poatp1back.repositories.MovimientoRepository;
 import com.dmk.poatp1back.repositories.ParteRepository;
 import com.dmk.poatp1back.repositories.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
@@ -33,9 +30,10 @@ public class StockService {
     LugarRepository lugarRepository;
 
     @Transactional
-    public ArrayList<Stock> obtenerStocksPorLugar(Long lugarId, Integer page, Integer size){
+    public PageImpl<Stock> obtenerStocksPorLugar(Long lugarId, Integer page, Integer size){
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        ArrayList<Parte> partes= parteRepository.findAll(pageable);
+        Page<Parte> partes= parteRepository.findAll(pageable);
         List<Long> partesIds=partes.stream().map(Parte::getId).collect(Collectors.toList());
         ArrayList<Stock> stocks= stockRepository.findByLugarIdAndParteIds(lugarId, partesIds);
         partes.forEach(parte -> {
@@ -49,13 +47,13 @@ public class StockService {
                 stocks.add(myStock);
             }
         });
-        return stocks;
+        return new PageImpl<Stock>(stocks, pageable, partes.getTotalElements());
     }
 
     @Transactional
-    public ArrayList<Stock> obtenerStocksGlobal(Integer page, Integer size){
+    public PageImpl<Stock> obtenerStocksGlobal(Integer page, Integer size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        ArrayList<Parte> partes= parteRepository.findAll(pageable);
+        Page<Parte> partes= parteRepository.findAll(pageable);
         List<Long> partesIds=partes.stream().map(Parte::getId).collect(Collectors.toList());
         ArrayList<Stock> stocks= stockRepository.findByParteIds(partesIds);
         ArrayList<Stock> resStocks= new ArrayList<>();
@@ -75,11 +73,11 @@ public class StockService {
             }
             resStocks.add(myStock);
         });
-        return resStocks;
+        return new PageImpl<Stock>(resStocks, pageable, partes.getTotalElements());
     }
 
     @Transactional
-    public Stock ingresarStock(Long parteId, Long lugarId, Integer cantidad, Integer estadoDestino){
+    public Stock ingresarStock(Long parteId, Long lugarId, Integer cantidad, String estadoDestino){
         Optional<Stock> stockOptional=stockRepository.findByParteIdAndLugarId(parteId, lugarId);
         Stock stock;
         if(stockOptional.isPresent()){
@@ -105,34 +103,34 @@ public class StockService {
         return stock;
     }
 
-    private Movimiento crearMovimiento(Integer cantidad, Integer estadoDestino, Stock stock) {
+    private Movimiento crearMovimiento(Integer cantidad, String estadoDestino, Stock stock) {
         Movimiento movimiento=new Movimiento();
         movimiento.setEstadoInicial(null);
         movimiento.setOrigen(null);
         movimiento.setParte(stock.getParte());
         movimiento.setDestino(stock.getLugar());
-        movimiento.setEstadoFinal(Estado.values()[estadoDestino]);
+        movimiento.setEstadoFinal(Estado.valueOf(estadoDestino));
         movimiento.setCantidad(cantidad);
         movimiento.setFecha(LocalDateTime.now());
         return movimiento;
     }
 
-    private void realizarIngreso(Integer cantidad, Integer estadoDestino, Stock stock) {
-        switch (estadoDestino) {
-            case 0:
+    private void realizarIngreso(Integer cantidad, String estadoDestino, Stock stock) {
+        switch (Estado.valueOf(estadoDestino)) {
+            case DESUSO:
                 stock.setCantidadDesuso((stock.getCantidadDesuso() + cantidad));
                 break;
-            case 1:
+            case USO:
                 stock.setCantidadUso((stock.getCantidadUso() + cantidad));
                 break;
-            case 2:
+            case DESECHADO:
                 stock.setCantidadDesechado((stock.getCantidadDesechado() + cantidad));
                 break;
         }
     }
 
     @Transactional
-    public Stock transferirStock(Long stockId, Integer cantidad, Long lugarId, Integer estadoOrigen, Integer estadoDestino) {
+    public Stock transferirStock(Long stockId, Integer cantidad, Long lugarId, String estadoOrigen, String estadoDestino) {
         Optional<Stock> origenOptional= stockRepository.findById(stockId);
         Stock origen;
         if(origenOptional.isPresent()){
@@ -161,7 +159,7 @@ public class StockService {
         return origen;
     }
 
-    private void realizarTransferencia(Integer cantidad, Integer estadoOrigen, Integer estadoDestino, Stock origen, Stock destino) {
+    private void realizarTransferencia(Integer cantidad, String estadoOrigen, String estadoDestino, Stock origen, Stock destino) {
         Boolean resultado=ejecutarTransferencia(origen, destino, cantidad, estadoOrigen, estadoDestino);
         if(resultado){
             Movimiento movimiento=crearMovimiento(cantidad, estadoOrigen, estadoDestino, origen, destino);
@@ -173,23 +171,23 @@ public class StockService {
         }
     }
 
-    private Movimiento crearMovimiento(Integer cantidad, Integer estadoOrigen, Integer estadoDestino, Stock origen, Stock destino) {
+    private Movimiento crearMovimiento(Integer cantidad, String estadoOrigen, String estadoDestino, Stock origen, Stock destino) {
         Movimiento movimiento=new Movimiento();
         movimiento.setParte(origen.getParte());
         movimiento.setCantidad(cantidad);
         movimiento.setOrigen(origen.getLugar());
         movimiento.setDestino(destino.getLugar());
-        movimiento.setEstadoInicial(Estado.values()[estadoOrigen]);
-        movimiento.setEstadoFinal(Estado.values()[estadoDestino]);
+        movimiento.setEstadoInicial(Estado.valueOf(estadoOrigen));
+        movimiento.setEstadoFinal(Estado.valueOf(estadoDestino));
         movimiento.setFecha(LocalDateTime.now());
         return movimiento;
     }
 
-    private Boolean ejecutarTransferencia(Stock stockOrigen, Stock stockDestino, Integer cantidad, Integer estadoOrigen, Integer estadoDestino){
+    private Boolean ejecutarTransferencia(Stock stockOrigen, Stock stockDestino, Integer cantidad, String estadoOrigen, String estadoDestino){
         Boolean res=false;
         if(cantidad<=0) throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Cantidad debe ser mayor a 0");
-        switch (estadoOrigen){
-            case 0:
+        switch (Estado.valueOf(estadoOrigen)){
+            case DESUSO:
                 if(stockOrigen.getCantidadDesuso()>=cantidad) {
                     stockOrigen.setCantidadDesuso((stockOrigen.getCantidadDesuso()-cantidad));
                     ejecutarTransferenciaDestino(stockDestino, cantidad, estadoDestino);
@@ -198,7 +196,7 @@ public class StockService {
                     res=false;
                 }
                 break;
-            case 1:
+            case USO:
                 if(stockOrigen.getCantidadUso()>=cantidad) {
                     stockOrigen.setCantidadUso((stockOrigen.getCantidadUso()-cantidad));
                     ejecutarTransferenciaDestino(stockDestino, cantidad, estadoDestino);
@@ -207,7 +205,7 @@ public class StockService {
                     res=false;
                 }
                 break;
-            case 2:
+            case DESECHADO:
                 if(stockOrigen.getCantidadDesechado()>=cantidad) {
                     stockOrigen.setCantidadDesechado((stockOrigen.getCantidadDesuso()-cantidad));
                     ejecutarTransferenciaDestino(stockDestino, cantidad, estadoDestino);
@@ -220,15 +218,15 @@ public class StockService {
         return res;
     }
 
-    private void ejecutarTransferenciaDestino(Stock stockDestino, Integer cantidad, Integer estadoDestino){
-        switch (estadoDestino){
-            case 0:
+    private void ejecutarTransferenciaDestino(Stock stockDestino, Integer cantidad, String estadoDestino){
+        switch (Estado.valueOf(estadoDestino)){
+            case DESUSO:
                 stockDestino.setCantidadDesuso((stockDestino.getCantidadDesuso()+cantidad));
                 break;
-            case 1:
+            case USO:
                 stockDestino.setCantidadUso((stockDestino.getCantidadUso()+cantidad));
                 break;
-            case 2:
+            case DESECHADO:
                 stockDestino.setCantidadDesechado((stockDestino.getCantidadDesuso()+cantidad));
                 break;
         }

@@ -1,23 +1,17 @@
 package com.dmk.poatp1back.controllers;
 
 import com.dmk.poatp1back.models.Movimiento;
-import com.dmk.poatp1back.models.Usuario;
 import com.dmk.poatp1back.services.MovimientoService;
-import com.dmk.poatp1back.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Optional;
-import java.util.zip.DataFormatException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/movimiento")
@@ -26,7 +20,7 @@ public class MovimientoController {
     MovimientoService movimientoService;
 
     @GetMapping(path = "global")
-    public ArrayList<Movimiento> obtenerMovimientos(@RequestParam Map<String,String> allParams) {
+    public Page<Movimiento> obtenerMovimientos(@RequestParam Map<String,String> allParams) {
         Optional<String> desdeParam=Optional.ofNullable(allParams.get("desde"));
         Optional<String> hastaParam=Optional.ofNullable(allParams.get("hasta"));
         Optional<String> pageParam=Optional.ofNullable(allParams.get("page"));
@@ -55,7 +49,7 @@ public class MovimientoController {
     }
 
     @GetMapping(path = "/parte/lugar")
-    public ArrayList<Movimiento> obtenerMovimientosPorParteYLugar(@RequestParam Map<String,String> allParams) {
+    public Page<Movimiento> obtenerMovimientosPorParteYLugar(@RequestParam Map<String,String> allParams) {
 
         Optional<String> desdeParam=Optional.ofNullable(allParams.get("desde"));
         Optional<String> hastaParam=Optional.ofNullable(allParams.get("hasta"));
@@ -74,6 +68,7 @@ public class MovimientoController {
             try{
                 desde=LocalDateTime.parse(desdeParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
                 hasta=LocalDateTime.parse(hastaParam.get(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+
             }catch (DateTimeParseException e){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Wrong date formats");
             }
@@ -93,7 +88,7 @@ public class MovimientoController {
     }
 
     @GetMapping(path = "/parte")
-    public ArrayList<Movimiento> obtenerMovimientosPorParte(@RequestParam Map<String,String> allParams) {
+    public Page<Movimiento> obtenerMovimientosPorParte(@RequestParam Map<String,String> allParams) {
 
         Optional<String> desdeParam=Optional.ofNullable(allParams.get("desde"));
         Optional<String> hastaParam=Optional.ofNullable(allParams.get("hasta"));
@@ -128,7 +123,7 @@ public class MovimientoController {
     }
 
     @GetMapping(path = "/lugar")
-    public ArrayList<Movimiento> obtenerMovimientosPorLugar(@RequestParam Map<String,String> allParams) {
+    public Page<Movimiento> obtenerMovimientosPorLugar(@RequestParam Map<String,String> allParams) {
 
         Optional<String> desdeParam=Optional.ofNullable(allParams.get("desde"));
         Optional<String> hastaParam=Optional.ofNullable(allParams.get("hasta"));
