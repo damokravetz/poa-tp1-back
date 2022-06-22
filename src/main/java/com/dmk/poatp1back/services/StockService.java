@@ -1,10 +1,7 @@
 package com.dmk.poatp1back.services;
 
 import com.dmk.poatp1back.models.*;
-import com.dmk.poatp1back.repositories.LugarRepository;
-import com.dmk.poatp1back.repositories.MovimientoRepository;
-import com.dmk.poatp1back.repositories.ParteRepository;
-import com.dmk.poatp1back.repositories.StockRepository;
+import com.dmk.poatp1back.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -28,6 +25,13 @@ public class StockService {
     MovimientoRepository movimientoRepository;
     @Autowired
     LugarRepository lugarRepository;
+    @Autowired
+    UsuarioRepository usuarioRepository;
+    @Autowired
+    EmailServiceImpl emailService;
+
+    private final double CRITICAL_LIMIT = 0.5;
+    private final double SECONDARY_LIMIT = 0.2;
 
     @Transactional
     public PageImpl<Stock> obtenerStocksPorLugar(Long lugarId, Integer page, Integer size){
@@ -166,9 +170,38 @@ public class StockService {
             stockRepository.save(origen);
             stockRepository.save(destino);
             movimientoRepository.save(movimiento);
+            verificarLimitesAceptados(origen, cantidad);
         }else{
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Cantidad insuficiente en lugar de origen");
         }
+    }
+
+    private void verificarLimitesAceptados(Stock stock, Integer cantidad){
+        if(stock.getLugar().getEsDeposito()) {
+            Integer cantidadActual = stock.getCantidadDesuso() + stock.getCantidadDesuso();
+            Double cantidadLimite;
+            if (stock.getParte().getTipo() == TipoParte.CRITICA) {
+                cantidadLimite=stock.getLugar().getCapacidad() * CRITICAL_LIMIT;
+                if (cantidadActual <= cantidadLimite && (cantidadActual+cantidad>cantidadLimite)) {
+                    enviarCorreos(stock);
+                }
+            } else {
+                cantidadLimite=stock.getLugar().getCapacidad() * SECONDARY_LIMIT;
+                if (cantidadActual <= cantidadLimite && (cantidadActual+cantidad>cantidadLimite)) {
+                    enviarCorreos(stock);
+                }
+            }
+        }
+    }
+
+    private void enviarCorreos(Stock stock) {
+        Thread newThread = new Thread(() -> {
+            List<Usuario>usuarios=usuarioRepository.findAll();
+            String[] destinatarios= usuarios.stream().map(Usuario::getEmail).toArray(String[]::new);
+            String text= "El stock de la parte crítica "+ stock.getParte().getModelo()+" ha llegado al mínimo en"+ stock.getLugar().getCodLugar();
+            emailService.sendSimpleMessage(destinatarios, "Limite de stock mínimo", text);
+        });
+        newThread.start();
     }
 
     private Movimiento crearMovimiento(Integer cantidad, String estadoOrigen, String estadoDestino, Stock origen, Stock destino) {

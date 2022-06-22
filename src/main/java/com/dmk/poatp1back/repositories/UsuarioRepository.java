@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface UsuarioRepository extends CrudRepository<Usuario, Long> {
     public abstract Optional<Usuario> findByEmailAndPassword(String email, String password);
     public abstract Optional<Usuario> findByEmail(String email);
+    public abstract ArrayList<Usuario> findAll();
 }

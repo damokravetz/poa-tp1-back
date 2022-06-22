@@ -13,6 +13,7 @@ public class Lugar {
     private String codLugar;
     private String descripcion;
     private Integer capacidad;
+    private Boolean esDeposito;
 
     public Lugar() {
     }
@@ -47,5 +48,13 @@ public class Lugar {
 
     public void setCapacidad(Integer capacidad) {
         this.capacidad = capacidad;
+    }
+
+    public Boolean getEsDeposito() {
+        return esDeposito;
+    }
+
+    public void setEsDeposito(Boolean esDeposito) {
+        this.esDeposito = esDeposito;
     }
 }

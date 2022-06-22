@@ -21,7 +21,7 @@ public class UsuarioService {
     UsuarioRepository usuarioRepository;
 
     public Map<String,String> autenticarUsuario(Usuario usuario){
-        Optional<Usuario>myUsuarioOptional=usuarioRepository.findByEmail(usuario.getEmail());
+        Optional<Usuario>myUsuarioOptional=usuarioRepository.findByEmailAndPassword(usuario.getEmail(), usuario.getPassword());
         if(myUsuarioOptional.isPresent()){
             Usuario myUsuario=myUsuarioOptional.get();
             String token= getJWTToken(usuario.getEmail());

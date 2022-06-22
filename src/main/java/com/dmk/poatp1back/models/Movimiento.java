@@ -22,6 +22,7 @@ public class Movimiento {
     private Estado estadoFinal;
     private Integer cantidad;
     private LocalDateTime fecha;
+    private String razonDesecho;
 
     public Movimiento() {
     }
@@ -88,5 +89,13 @@ public class Movimiento {
 
     public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
+    }
+
+    public String getRazonDesecho() {
+        return razonDesecho;
+    }
+
+    public void setRazonDesecho(String razonDesecho) {
+        this.razonDesecho = razonDesecho;
     }
 }
