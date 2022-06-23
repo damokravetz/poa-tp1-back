@@ -178,16 +178,16 @@ public class StockService {
 
     private void verificarLimitesAceptados(Stock stock, Integer cantidad){
         if(stock.getLugar().getEsDeposito()) {
-            Integer cantidadActual = stock.getCantidadDesuso() + stock.getCantidadDesuso();
+            Integer cantidadActual = stock.getCantidadDesuso()+stock.getCantidadUso();
             Double cantidadLimite;
             if (stock.getParte().getTipo() == TipoParte.CRITICA) {
                 cantidadLimite=stock.getLugar().getCapacidad() * CRITICAL_LIMIT;
-                if (cantidadActual <= cantidadLimite && (cantidadActual+cantidad>cantidadLimite)) {
+                if (cantidadActual < cantidadLimite && (cantidadActual+cantidad>=cantidadLimite)) {
                     enviarCorreos(stock);
                 }
             } else {
                 cantidadLimite=stock.getLugar().getCapacidad() * SECONDARY_LIMIT;
-                if (cantidadActual <= cantidadLimite && (cantidadActual+cantidad>cantidadLimite)) {
+                if (cantidadActual < cantidadLimite && (cantidadActual+cantidad>=cantidadLimite)) {
                     enviarCorreos(stock);
                 }
             }
@@ -198,7 +198,7 @@ public class StockService {
         Thread newThread = new Thread(() -> {
             List<Usuario>usuarios=usuarioRepository.findAll();
             String[] destinatarios= usuarios.stream().map(Usuario::getEmail).toArray(String[]::new);
-            String text= "El stock de la parte crítica "+ stock.getParte().getModelo()+" ha llegado al mínimo en"+ stock.getLugar().getCodLugar();
+            String text= "El stock de la parte "+ stock.getParte().getModelo()+" ha llegado al mínimo en "+ stock.getLugar().getCodLugar();
             emailService.sendSimpleMessage(destinatarios, "Limite de stock mínimo", text);
         });
         newThread.start();
